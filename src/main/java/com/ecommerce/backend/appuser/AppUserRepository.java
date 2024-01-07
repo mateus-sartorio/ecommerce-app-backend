@@ -1,4 +1,4 @@
-package com.example.demo.appuser;
+package com.ecommerce.backend.appuser;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

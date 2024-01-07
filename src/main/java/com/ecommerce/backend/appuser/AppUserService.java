@@ -1,4 +1,4 @@
-package com.example.demo.appuser;
+package com.ecommerce.backend.appuser;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

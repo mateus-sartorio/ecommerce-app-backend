@@ -1,10 +1,7 @@
-package com.example.demo.appuser;
+package com.ecommerce.backend.appuser;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,17 +28,22 @@ public class AppUser implements UserDetails {
     private Long id;
 
     private String name;
+
+    @Column(unique = true)
     private String username;
+
+    @Column(unique = true)
     private String email;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
     private AppUserRole appUserRole;
 
-    private boolean locked;
-    private boolean enabled;
+    private Boolean locked;
+    private Boolean enabled;
 
-    public AppUser(String name, String username, String email, String password, AppUserRole appUserRole, boolean locked, boolean enabled) {
+    public AppUser(String name, String username, String email, String password, AppUserRole appUserRole, Boolean locked, Boolean enabled) {
         this.name = name;
         this.username = username;
         this.email = email;
@@ -84,6 +86,6 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }
