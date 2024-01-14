@@ -16,3 +16,19 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+
+  mail:
+    host: localhost
+    port: 1025
+
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: "*"
+          auth: false
+          starttls:
+            enable: false
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
