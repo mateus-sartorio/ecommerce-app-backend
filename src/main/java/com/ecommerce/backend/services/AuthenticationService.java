@@ -1,44 +1,114 @@
-package com.ecommerce.backend.registration;
+package com.ecommerce.backend.services;
 
-import com.ecommerce.backend.appuser.AppUser;
-import com.ecommerce.backend.appuser.AppUserRole;
-import com.ecommerce.backend.appuser.AppUserService;
-import com.ecommerce.backend.email.EmailSender;
-import com.ecommerce.backend.registration.token.ConfirmationToken;
-import com.ecommerce.backend.registration.token.ConfirmationTokenService;
+import com.ecommerce.backend.DTOs.request.RegistrationRequestDTO;
+import com.ecommerce.backend.DTOs.response.LoginResponseDTO;
+import com.ecommerce.backend.DTOs.response.RegistrationResponseDTO;
+import com.ecommerce.backend.DTOs.response.UserResponseDTO;
+import com.ecommerce.backend.models.User;
+import com.ecommerce.backend.repositories.UserRepository;
+import com.ecommerce.backend.utils.email.EmailSender;
+import com.ecommerce.backend.utils.email.EmailValidator;
+import com.ecommerce.backend.utils.token.ConfirmationToken;
+import com.ecommerce.backend.utils.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
+@Transactional
 @AllArgsConstructor
-public class RegistrationService {
-    private final EmailValidator emailValidator;
-    private final AppUserService appUserService;
+public class AuthenticationService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
     private final ConfirmationTokenService confirmationTokenService;
+    private final EmailValidator emailValidator;
     private final EmailSender emailSender;
 
-    public String register(RegistrationRequest request) {
+    public RegistrationResponseDTO registerUser(RegistrationRequestDTO request) {
         boolean isValidEmail = emailValidator.test(request.email());
-
         if (!isValidEmail) {
             throw new IllegalStateException("Email not valid: %s".formatted(request.email()));
         }
 
-        String token = appUserService.signUpUser(new AppUser(
+        boolean usernameTaken = userRepository.findByUsername(request.username()).isPresent();
+        if (usernameTaken) {
+            // TODO: if user email not confirmed send confirmation email, else throw exception
+            throw new IllegalStateException("Username already taken");
+        }
+
+        boolean emailTaken = userRepository.findByUsername(request.email()).isPresent();
+        if (emailTaken) {
+            // TODO: if user email not confirmed send confirmation email, else throw exception
+            throw new IllegalStateException("Email already taken");
+        }
+
+        String encodedPassword = passwordEncoder.encode(request.password());
+
+        User user = new User(
+                request.username(),
+                request.email(),
                 request.firstName(),
                 request.lastName(),
-                request.email(),
-                request.password(),
-                AppUserRole.USER
-        ));
+                encodedPassword);
 
-        String link = "http://localhost:8080/api/v1/registration/confirm?token=" + token;
+        userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(60),
+                user
+        );
+
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
         emailSender.send(request.email(), buildEmail(request.firstName(), link));
-        
-        return token;
+
+        return RegistrationResponseDTO
+                .builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .locked(user.getLocked())
+                .enabled(user.getEnabled())
+                .build();
+    }
+
+    public LoginResponseDTO loginUser(String username, String password) {
+        try {
+            UsernamePasswordAuthenticationToken u = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication auth = authenticationManager.authenticate(u);
+            String token = tokenService.generateJwt(auth);
+
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+            UserResponseDTO responseDTO = UserResponseDTO
+                    .builder()
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .enabled(user.getEnabled())
+                    .locked(user.getLocked())
+                    .build();
+
+            return new LoginResponseDTO(responseDTO, token);
+        } catch (AuthenticationException e) {
+            return new LoginResponseDTO(null, "");
+        }
     }
 
     @Transactional
@@ -59,10 +129,13 @@ public class RegistrationService {
         }
 
         confirmationTokenService.setConfirmedAt(token);
-        appUserService.enableAppUser(
-                confirmationToken.getAppUser().getEmail());
+        enableAppUser(confirmationToken.getUser().getEmail());
 
         return "confirmed";
+    }
+
+    public void enableAppUser(String email) {
+        userRepository.enableAppUser(email);
     }
 
     private String buildEmail(String name, String link) {
