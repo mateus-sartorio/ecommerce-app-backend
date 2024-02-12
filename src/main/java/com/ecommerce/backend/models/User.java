@@ -1,5 +1,6 @@
-package com.ecommerce.backend.appuser;
+package com.ecommerce.backend.models;
 
+import com.ecommerce.backend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,9 +13,13 @@ import java.util.Collections;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
-public class AppUser implements UserDetails {
+@Table(name = "users")
+public class User implements UserDetails {
     @Id
     @SequenceGenerator(
             name = "app_user_sequence",
@@ -27,35 +32,36 @@ public class AppUser implements UserDetails {
     )
     private Long id;
 
-    private String firstName;
-
     @Column(unique = true)
-    private String lastName;
+    private String username;
 
     @Column(unique = true)
     private String email;
 
+    private String firstName;
+    private String lastName;
+
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private AppUserRole appUserRole;
+    private Role authority;
 
     private Boolean locked;
     private Boolean enabled;
 
-    public AppUser(String firstName, String lastName, String email, String password, AppUserRole appUserRole) {
+    public User(String username, String email, String firstName, String lastName, String password) {
+        this.username = username;
+        this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
         this.password = password;
-        this.appUserRole = appUserRole;
+        this.authority = Role.USER;
         this.locked = false;
         this.enabled = false;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(appUserRole.name());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(this.authority.toString());
         return Collections.singleton(authority);
     }
 
@@ -66,7 +72,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.username;
     }
 
     @Override

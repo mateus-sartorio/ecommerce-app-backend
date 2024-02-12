@@ -1,4 +1,4 @@
-package com.ecommerce.backend.registration.token;
+package com.ecommerce.backend.utils.token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

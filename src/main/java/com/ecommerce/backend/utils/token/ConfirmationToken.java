@@ -1,6 +1,6 @@
-package com.ecommerce.backend.registration.token;
+package com.ecommerce.backend.utils.token;
 
-import com.ecommerce.backend.appuser.AppUser;
+import com.ecommerce.backend.models.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,13 +41,13 @@ public class ConfirmationToken {
             nullable = false,
             name = "app_user_id"
     )
-    private AppUser appUser;
+    private User user;
 
-    public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, AppUser appUser) {
+    public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, User user) {
         this.token = token;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
         this.confirmedAt = null;
-        this.appUser = appUser;
+        this.user = user;
     }
 }
