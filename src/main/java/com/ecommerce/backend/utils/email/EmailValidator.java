@@ -1,4 +1,4 @@
-package com.ecommerce.backend.registration;
+package com.ecommerce.backend.utils.email;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
