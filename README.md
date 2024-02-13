@@ -1,6 +1,5 @@
 <p align="center"><img align="center" width="280" src="./.github/logo-light.svg#gh-light-mode-only"/></p>
 <p align="center">
-  <img src="https://skillicons.dev/icons?i=dart,flutter" /> <br/>
   <img src="https://skillicons.dev/icons?i=java,spring,docker,postgresql" /> <br/>
   <a href="https://github.com/mateus-sartorio/ecommerce-app"><kbd>🔵 GitHub</kbd></a>
   <a href="https://github.com/mateus-sartorio/ecommerce-app"><kbd>🟢 Website</kbd></a>
