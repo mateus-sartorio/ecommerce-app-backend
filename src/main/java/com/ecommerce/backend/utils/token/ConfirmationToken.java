@@ -1,6 +1,6 @@
 package com.ecommerce.backend.utils.token;
 
-import com.ecommerce.backend.models.User;
+import com.ecommerce.backend.entities.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
