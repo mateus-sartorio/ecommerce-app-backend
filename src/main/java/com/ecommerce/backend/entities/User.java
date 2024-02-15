@@ -1,4 +1,4 @@
-package com.ecommerce.backend.models;
+package com.ecommerce.backend.entities;
 
 import com.ecommerce.backend.enums.Role;
 import jakarta.persistence.*;
@@ -22,13 +22,13 @@ import java.util.Collections;
 public class User implements UserDetails {
     @Id
     @SequenceGenerator(
-            name = "app_user_sequence",
-            sequenceName = "app_user_sequence",
+            name = "user_sequence",
+            sequenceName = "user_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "app_user_sequence"
+            generator = "user_sequence"
     )
     private Long id;
 

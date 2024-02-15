@@ -16,7 +16,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -28,3 +27,9 @@ spring:
           auth: true
           starttls:
             enable: true
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB

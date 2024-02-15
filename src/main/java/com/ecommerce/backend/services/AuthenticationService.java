@@ -4,7 +4,7 @@ import com.ecommerce.backend.DTOs.request.RegistrationRequestDTO;
 import com.ecommerce.backend.DTOs.response.LoginResponseDTO;
 import com.ecommerce.backend.DTOs.response.RegistrationResponseDTO;
 import com.ecommerce.backend.DTOs.response.UserResponseDTO;
-import com.ecommerce.backend.models.User;
+import com.ecommerce.backend.entities.User;
 import com.ecommerce.backend.repositories.UserRepository;
 import com.ecommerce.backend.utils.email.EmailSender;
 import com.ecommerce.backend.utils.email.EmailValidator;
